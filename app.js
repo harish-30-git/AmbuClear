@@ -12,6 +12,8 @@ app.set('view engine','ejs');
 app.use(express.static(path.join(__dirname,'public')));
 io.on("connection", function(socket){
     socket.on("send-location", function(data){
+        const { id, latitude, longitude } = data;
+        console.log({latitude,longitude});
         io.emit("receive-location",{id: socket.id, ...data});
     });
     socket.on("disconnect",function(){
