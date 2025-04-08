@@ -8,7 +8,7 @@ if (navigator.geolocation) {
 
             // Find the closest highlighted location within 1000 meters
             let closestLocation = null;
-            let minDistance = 1000000000000; // Threshold: 1 kilometer (1000 meters)
+            let minDistance = 1000; // Threshold: 1 kilometer (1000 meters)
 
             highlightLocations.forEach((location) => {
                 const distance = getDistanceFromLatLonInMeters(
@@ -62,10 +62,10 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 // Predefined highlight locations
 const highlightLocations = [
-    { name: "Location A", latitude: 13.0525, longitude: 80.2810 },
-    { name: "Location B", latitude: 13.0540, longitude: 80.2840 },
-    { name: "Location C", latitude: 13.0550, longitude: 80.2855 },
-    //{ name: "Location D", latitude: 13.0467476, longitude: 80.1785686 }
+    { name: "Arcot Road", latitude: 13.0418592823117, longitude: 80.17641308680929 },
+    { name: "Besant Nagar", latitude: 12.9960874, longitude: 80.2676685 },
+    { name: "Anna Nagar Roundabout", latitude: 13.084663299999999, longitude: 80.21796674973545 },
+    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 }
 ];
 
 // Add markers for highlight locations
