@@ -8,7 +8,7 @@ if (navigator.geolocation) {
 
             // Find the closest highlighted location within 1000 meters
             let closestLocation = null;
-            let minDistance = 1000; // Threshold: 1 kilometer (1000 meters)
+            let minDistance = 300; // Threshold: 1 kilometer (1000 meters)
 
             highlightLocations.forEach((location) => {
                 const distance = getDistanceFromLatLonInMeters(
@@ -78,7 +78,7 @@ highlightLocations.forEach((location) => {
 const markers = {};
 socket.on("receive-location", (data) => {
     const { id, latitude, longitude } = data;
-    map.setView([latitude, longitude], 16);
+    map.setView([latitude, longitude]);
     if (markers[id]) {
         markers[id].setLatLng([latitude, longitude]);
     } else {
