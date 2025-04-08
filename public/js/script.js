@@ -65,7 +65,9 @@ const highlightLocations = [
     { name: "Arcot Road", latitude: 13.0418592823117, longitude: 80.17641308680929 },
     { name: "Besant Nagar", latitude: 12.9960874, longitude: 80.2676685 },
     { name: "Anna Nagar Roundabout", latitude: 13.084663299999999, longitude: 80.21796674973545 },
-    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 }
+    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 },
+    { name: "Marina Beach", latitude: 13.0494293, longitude: 80.2806036 },
+    { name: "Velachery", latitude: 12.9874445, longitude: 80.2205734 },
 ];
 
 // Add markers for highlight locations
