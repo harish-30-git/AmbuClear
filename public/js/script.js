@@ -67,7 +67,7 @@ const highlightLocations = [
     { name: "Anna Nagar Roundabout", latitude: 13.084663299999999, longitude: 80.21796674973545 },
     { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 },
     { name: "Marina Beach", latitude: 13.0494293, longitude: 80.2806036 },
-    { name: "Velachery", latitude: 12.9874445, longitude: 80.2205734 },
+    { name: "Velachery", latitude: 12.9875069, longitude: 80.2179463 },
 ];
 
 // Add markers for highlight locations
