@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "app.js", 
+    "start-backend": "python app.py",
+    "dev": "concurrently \"npm run start\" \"npm run start-backend\"" 
   },
   "keywords": [],
   "author": "",
