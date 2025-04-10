@@ -24,7 +24,7 @@ if (navigator.geolocation) {
                 }
             });
 
-            // Change the closest location's marker to green
+            // Change the closest location's marker to green and send data to Python
             highlightLocations.forEach((location) => {
                 if (location === closestLocation) {
                     location.marker.setIcon(
@@ -33,8 +33,10 @@ if (navigator.geolocation) {
                             iconSize: [32, 32], // Adjust size if needed
                         })
                     );
+                    
+                    // Send the location data (name, lat, lon) to Python server
+                    sendLocationToPython(location.name, location.latitude, location.longitude);
                 } else {
-                    // Reset other markers to the default icon
                     location.marker.setIcon(
                         L.icon({
                             iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
@@ -65,9 +67,7 @@ const highlightLocations = [
     { name: "Arcot Road", latitude: 13.0418592823117, longitude: 80.17641308680929 },
     { name: "Besant Nagar", latitude: 12.9960874, longitude: 80.2676685 },
     { name: "Anna Nagar Roundabout", latitude: 13.084663299999999, longitude: 80.21796674973545 },
-    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 },
-    { name: "Marina Beach", latitude: 13.0494293, longitude: 80.2806036 },
-    { name: "Velachery", latitude: 12.9873344, longitude:80.2181539 },
+    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 }
 ];
 
 // Add markers for highlight locations
@@ -112,4 +112,26 @@ function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
 
 function degToRad(deg) {
     return deg * (Math.PI / 180);
+}
+
+// Function to send location data to Python
+function sendLocationToPython(name, latitude, longitude) {
+    fetch("http://localhost:5000/location", {  // Replace with your Python server URL
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: name,
+            latitude: latitude,
+            longitude: longitude
+        })
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log("Location data sent to Python:", data);
+    })
+    .catch((error) => {
+        console.error("Error sending location to Python:", error);
+    });
 }
