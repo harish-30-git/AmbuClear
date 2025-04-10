@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "app.js", 
+    "start": "node app.js", 
     "start-backend": "python app.py",
     "dev": "concurrently \"npm run start\" \"npm run start-backend\"" 
   },
