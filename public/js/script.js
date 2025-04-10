@@ -27,6 +27,7 @@ if (navigator.geolocation) {
             // Change the closest location's marker to green and send data to Python
             highlightLocations.forEach((location) => {
                 if (location === closestLocation) {
+                    console.log(
                     location.marker.setIcon(
                         L.icon({
                             iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
