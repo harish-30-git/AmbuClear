@@ -3,12 +3,11 @@ const socket = io();
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
         (position) => {
-            const { latitude, longitude } = position.coords; 
+            const { latitude, longitude } = position.coords;
             socket.emit("send-location", { latitude, longitude });
 
-            // Find the closest highlighted location within 1000 meters
             let closestLocation = null;
-            let minDistance = 300; // Threshold: 1 kilometer (1000 meters)
+            let minDistance = 500;
 
             highlightLocations.forEach((location) => {
                 const distance = getDistanceFromLatLonInMeters(
@@ -24,26 +23,25 @@ if (navigator.geolocation) {
                 }
             });
 
-            // Change the closest location's marker to green and send data to Python
             highlightLocations.forEach((location) => {
                 if (location === closestLocation) {
-                    console.log(
+                    const status = "start";
                     location.marker.setIcon(
                         L.icon({
                             iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
                             iconSize: [32, 32], // Adjust size if needed
                         })
                     );
-                    
-                    // Send the location data (name, lat, lon) to Python server
-                    sendLocationToPython(location.name, location.latitude, location.longitude);
+                    sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
                 } else {
+                    const status = "stop";
                     location.marker.setIcon(
                         L.icon({
                             iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
                             iconSize: [32, 32], // Adjust size if needed
                         })
                     );
+                    sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
                 }
             });
         },
@@ -65,11 +63,10 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 // Predefined highlight locations
 const highlightLocations = [
-    { name: "Arcot Road", latitude: 13.0418592823117, longitude: 80.17641308680929 },
-    { name: "Besant Nagar", latitude: 12.9960874, longitude: 80.2676685 },
-    { name: "Anna Nagar Roundabout", latitude: 13.084663299999999, longitude: 80.21796674973545 },
-    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312 },
-    { name: "Infosys", latitude: 13.034728, longitude: 80.1702831 } 
+    { name: "Arcot Road", latitude: 13.0418592823117, longitude: 80.17641308680929,esp32_id: "esp32_001" },
+    { name: "Besant Nagar", latitude: 12.9960874, longitude: 80.2676685,esp32_id: "esp32_002" },
+    { name: "Anna Nagar Roundabout", latitude: 13.084663299999999, longitude: 80.21796674973545,esp32_id: "esp32_003" },
+    { name: "Infosys", latitude: 12.8925236, longitude: 80.2275312,esp32_id: "esp32_004" },
 ];
 
 // Add markers for highlight locations
@@ -117,16 +114,18 @@ function degToRad(deg) {
 }
 
 // Function to send location data to Python
-function sendLocationToPython(name, latitude, longitude) {
-    fetch("http://localhost:5000/location", {  // Replace with your Python server URL
+function sendLocationToPython(name, latitude, longitude, status, esp32_id) {
+    fetch("http://localhost:5000/location", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
+            esp32_id: esp32_id,  // Send ESP32 ID here
             name: name,
             latitude: latitude,
-            longitude: longitude
+            longitude: longitude,
+            status: status
         })
     })
     .then((response) => response.json())
