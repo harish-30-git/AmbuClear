@@ -1,5 +1,5 @@
 const socket = io();
-
+let area = localStorage.getItem("area") || "None";
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
         (position) => {
@@ -7,7 +7,7 @@ if (navigator.geolocation) {
             socket.emit("send-location", { latitude, longitude });
 
             let closestLocation = null;
-            let minDistance = 100000;
+            let minDistance = 500;
 
             highlightLocations.forEach((location) => {
                 const distance = getDistanceFromLatLonInMeters(
@@ -22,8 +22,8 @@ if (navigator.geolocation) {
                     minDistance = distance;
                 }
             });
-
             highlightLocations.forEach((location) => {
+                console.log(area);
                 if (location === closestLocation) {
                     const status = "start";
                     location.marker.setIcon(
@@ -32,16 +32,25 @@ if (navigator.geolocation) {
                             iconSize: [32, 32], // Adjust size if needed
                         })
                     );
-                    sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
-                } else {
+                    if(area !== location.name){
+                        sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
+                        localStorage.setItem("area", location.name);
+                        area=location.name;
+                    }
+                    
+                } else{
                     const status = "stop";
                     location.marker.setIcon(
                         L.icon({
                             iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
                             iconSize: [32, 32], // Adjust size if needed
                         })
-                    );
-                    sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
+                    );     
+                    if(area === location.name){
+                        sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
+                        localStorage.setItem("area", "None");
+                        area="None";
+                    }
                 }
             });
         },
@@ -115,7 +124,7 @@ function degToRad(deg) {
 
 // Function to send location data to Python
 function sendLocationToPython(name, latitude, longitude, status, esp32_id) {
-    fetch("https://ambuclear-server-2.onrender.com/location", {
+    fetch("http://localhost:5000/location", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
