@@ -160,5 +160,5 @@ async function fetchQueue() {
         console.error("Error fetching queue:", error);
     }
 }
-setInterval(fetchQueue, 20 * 60 * 1000);
+setInterval(fetchQueue, 10 * 60 * 1000);
 fetchQueue();
