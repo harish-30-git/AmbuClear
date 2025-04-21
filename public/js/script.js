@@ -7,7 +7,7 @@ if (!userId) {
 }
 
 let queue = JSON.parse(localStorage.getItem("queue")) || [];
-
+console.log(queue);
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
         (position) => {
