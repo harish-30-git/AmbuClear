@@ -1,5 +1,12 @@
 const socket = io();
 let queue = JSON.parse(localStorage.getItem("queue")) || [];
+
+let user_id = localStorage.getItem("user_id");
+if (!user_id) {
+    user_id = "user_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("user_id", user_id);
+}
+
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
         (position) => {
@@ -25,31 +32,25 @@ if (navigator.geolocation) {
             highlightLocations.forEach((location) => {
                 if (location === closestLocation) {
                     const status = "start";
-                    location.marker.setIcon(
-                        L.icon({
-                            iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
-                            iconSize: [32, 32],
-                        })
-                    );
+                    location.marker.setIcon(L.icon({
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                        iconSize: [32, 32],
+                    }));
                     if (!queue.includes(location.name)) {
-                        sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
+                        sendLocationToPython(location.name, latitude, longitude, status, location.esp32_id);
                         queue.push(location.name);
                         localStorage.setItem("queue", JSON.stringify(queue));
-                        console.log("Current queue:", queue);
                     }
                 } else {
                     const status = "stop";
-                    location.marker.setIcon(
-                        L.icon({
-                            iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                            iconSize: [32, 32],
-                        })
-                    );
+                    location.marker.setIcon(L.icon({
+                        iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+                        iconSize: [32, 32],
+                    }));
                     if (queue.includes(location.name)) {
-                        sendLocationToPython(location.name, location.latitude, location.longitude, status, location.esp32_id);
+                        sendLocationToPython(location.name, latitude, longitude, status, location.esp32_id);
                         queue = queue.filter((item) => item !== location.name);
                         localStorage.setItem("queue", JSON.stringify(queue));
-                        console.log("Current queue:", queue);
                     }
                 }
             });
@@ -79,7 +80,7 @@ const highlightLocations = [
 
 highlightLocations.forEach((location) => {
     const marker = L.marker([location.latitude, location.longitude]).addTo(map);
-    marker.bindPopup(`<b>${location.name}</b>`).openPopup();
+    marker.bindPopup(`<b>${location.name}</b>`);
     location.marker = marker;
 });
 
@@ -99,7 +100,6 @@ socket.on("user-disconnected", (id) => {
         map.removeLayer(markers[id]);
         delete markers[id];
     }
-
 });
 
 function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
@@ -123,42 +123,32 @@ function degToRad(deg) {
 function sendLocationToPython(name, latitude, longitude, status, esp32_id) {
     fetch("https://ambuclear-server-2.onrender.com/location", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            esp32_id: esp32_id,
-            name: name,
-            latitude: latitude,
-            longitude: longitude,
-            status: status
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id, esp32_id, name, latitude, longitude, status })
     })
-    .then((response) => response.json())
+    .then((res) => res.json())
     .then((data) => {
-        console.log("Location data sent to Python:", data);
+        console.log("Sent to Python:", data);
     })
-    .catch((error) => {
-        console.error("Error sending location to Python:", error);
-    });
+    .catch((err) => console.error("Error:", err));
 }
+
 async function fetchQueue() {
     try {
-        const response = await fetch('https://ambuclear-server-2.onrender.com/queue');
-        const data = await response.json();
+        const res = await fetch("https://ambuclear-server-2.onrender.com/queue", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id })
+        });
+        const data = await res.json();
         if (data.status === "success") {
-            console.log("Fetched queue from Python:", data.queue);
-
             queue = data.queue;
             localStorage.setItem("queue", JSON.stringify(queue));
-
-            console.log("Local queue updated from Python:", queue);
-        } else {
-            console.error("Failed to fetch queue from server");
         }
-    } catch (error) {
-        console.error("Error fetching queue:", error);
+    } catch (err) {
+        console.error("Queue fetch failed:", err);
     }
 }
+
 setInterval(fetchQueue, 10 * 60 * 1000);
 fetchQueue();
