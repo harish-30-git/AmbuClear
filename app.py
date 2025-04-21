@@ -28,7 +28,7 @@ firebase_admin.initialize_app(cred, {
 queue = []
 active_timers = {} 
 
-TIMEOUT_DURATION = 1140000
+TIMEOUT_DURATION = 9 * 60
 
 def revert_to_stop(name, esp32_id):
     print(f"Timeout reached for {name}. Reverting status to 'stop'")
